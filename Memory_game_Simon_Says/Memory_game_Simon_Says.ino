@@ -3,17 +3,21 @@
 #include <LiquidCrystal_I2C.h>
 #include <Tone.h>
 
-LiquidCrystal_I2C lcd(0x27,2,1,0,4,5,6,7); 
+// codigo modificado para arduino uno 
+// Version original por IsmaliSan https://github.com/IsmailSan/Memory-Game
+
+
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE); // establece el LCD
 Tone speakerpin;
 int starttune[] = {NOTE_E4, NOTE_E4, NOTE_C4, NOTE_E4, NOTE_G4, NOTE_G4};
 int duration2[] = {100, 200, 100, 200, 100, 400};
 int note[] = {NOTE_A4, NOTE_A4, NOTE_A4, NOTE_A4, NOTE_B4, NOTE_A4};
 int duration[] = {100, 100, 100, 300, 100, 300};
-int button[] = {2, 3, 4, 5}; //The four button input pins
-int ledpin[] = {8, 9, 10, 11};  // LED pins
-int turn = 0;  // turn counter
-int buttonstate = 0;  // button state checker
-int randomArray[50]; //long to store up to 50 inputs 
+int button[] = {2, 3, 4, 5}; //Input  pins botones
+int ledpin[] = {8, 9, 10, 11};  // Input pins LEDS
+int turn = 0;  // Contador de turnos
+int buttonstate = 0;  // checadores de botones
+int randomArray[50]; //almacenar hasta 50 entradas
 int inputArray[50];
 int highscore = 0;
 int MyScore;
@@ -30,20 +34,20 @@ void setup()
  lcd.setCursor(0, 0);
  lcd.print("High Score: 0");
   Serial.begin(9600);
-  speakerpin.begin(12); // speaker is on pin 12
+  speakerpin.begin(12); // La altavoz está en el pin 12
 
-  for(int x=0; x<4; x++)  // LED pins are outputs
+  for(int x=0; x<4; x++)  // Los pines LED son Output
   {
     pinMode(ledpin[x], OUTPUT);
   }
   
   for(int x=0; x<4; x++) 
   {
-    pinMode(button[x],INPUT);  // button pins are inputs
-    digitalWrite(button[x], HIGH);  // enable internal pullup; buttons start in high position; logic reversed
+    pinMode(button[x],INPUT);  // los botones son inputs 
+    digitalWrite(button[x], HIGH);  // habilitar pullup interno; los botones comienzan en posición alta; lógica invertida
   }
 
-  randomSeed(analogRead(0)); //Added to generate "more randomness" with the randomArray for the output function
+  randomSeed(analogRead(0)); //Agregado para generar "más aleatoriedad" con randomArray para la función de salida
   for (int thisNote = 0; thisNote < 6; thisNote ++) {
      // play the next note:
      speakerpin.play(starttune[thisNote]);
@@ -80,7 +84,7 @@ void loop()
 {   
   for (int y=0; y<=2; y++)
   {
-    //function for generating the array to be matched by the player
+    //función para generar la matriz que debe coincidir con el jugador
     digitalWrite(ledpin[0], HIGH);
     digitalWrite(ledpin[1], HIGH);
     digitalWrite(ledpin[2], HIGH);
@@ -103,8 +107,8 @@ void loop()
     delay(1000);
   
     for (int y=turn; y <= turn; y++) //untuk sekali random
-    { //Limited by the turn variable
-      Serial.println(""); //Some serial output to follow along
+    { //Limitado por la variable de giro
+      Serial.println(""); //Algunas salidas en serie para seguir
       Serial.print("Turn: ");
       Serial.print(y);
       Serial.println("");
@@ -122,7 +126,7 @@ void loop()
  Serial.print(y);
  Serial.println("");
  delay(1000);
-      randomArray[y] = random(1, 5); //Assigning a random number (1-4) to the randomArray[y], y being the turn count
+      randomArray[y] = random(1, 5); //Asigna un número aleatorio (1-4) a randomArray[y], siendo y el conteo de turnos
       for (int x=0; x <= turn; x++)
       {
         Serial.print(randomArray[x]);
@@ -131,7 +135,7 @@ void loop()
         {
       
           if (randomArray[x] == 1 && ledpin[y] == 8) 
-          {  //if statements to display the stored values in the array
+          {  //declaraciones if para mostrar los valores almacenados en el array
             digitalWrite(ledpin[y], HIGH);
             speakerpin.play(NOTE_G3, 100);
             delay(400);
@@ -177,10 +181,10 @@ void loop()
  
  
  
-void input() { //Function for allowing user input and checking input against the generated array
+void input() { //Función para permitir la entrada del usuario y verificar la entrada contra del array generado
 
   for (int x=0; x <= turn;)
-  { //Statement controlled by turn count
+  { //Declaración controlada por conteo de turnos
 
     for(int y=0; y<4; y++)
     {
@@ -197,9 +201,9 @@ void input() { //Function for allowing user input and checking input against the
         delay(250);
         Serial.print(" ");
         Serial.print(1);
-        if (inputArray[x] != randomArray[x]) { //Checks value input by user and checks it against
-          fail();                              //the value in the same spot on the generated array
-        }                                      //The fail function is called if it does not match
+        if (inputArray[x] != randomArray[x]) { //Verifica el valor ingresado por el usuario y lo compara con
+          fail();                              //el valor en el mismo lugar en el array generado
+        }                                      //Se llama a la función fail si no coincide
         x++;
       }
        if (buttonstate == LOW && button[y] == 3)
@@ -253,12 +257,12 @@ void input() { //Function for allowing user input and checking input against the
     }
   }
   delay(500);
-  turn++; //Increments the turn count, also the last action before starting the output function over again
+  turn++; //Incrementa el número de turnos, también la última acción antes de volver a iniciar la función de salida
 }
 
 
 
-void fail() { //Function used if the player fails to match the sequence
+void fail() { //Función utilizada si el jugador no logra hacer coincidir la secuencia
  
   for (int y=0; y<=3; y++)
   { //Flashes lights for failure
@@ -310,7 +314,7 @@ delay(100);
  }
  delay(1000);
   
-  turn = -1; //Resets turn value so the game starts over without need for a reset button
+  turn = -1; //Restablece el valor de turno para que el juego comience de nuevo sin necesidad de un botón de reinicio
 }
 }
 
